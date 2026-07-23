@@ -1,4 +1,15 @@
-﻿venv/
+﻿# Virtual environments
+library_mcp_server/
+venv/
+.venv/
+env/
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Environment variables
 .env
+
+# VS Code
+.vscode/
