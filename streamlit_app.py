@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
 from agents import Agent, Runner, set_tracing_disabled
-from agents.mcp import MCPServerStdio
+from agents.mcp import MCPServerStreamableHttp
 from agents.models.openai_chatcompletions import OpenAIChatCompletionsModel
 
 load_dotenv()
@@ -52,9 +52,9 @@ async def run_turn(history, user_message):
     set_tracing_disabled(True)
     model = build_openrouter_model()
 
-    async with MCPServerStdio(
+    async with MCPServerStreamableHttp(
         name="Library Server",
-        params={"command": "python", "args": ["app.py"]},
+        params={"url": "http://localhost:8001/mcp"},
     ) as library_server:
         agent = Agent(
             name="Librarian",

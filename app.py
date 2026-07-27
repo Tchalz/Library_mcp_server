@@ -19,7 +19,7 @@ from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("Library Server")
+mcp = FastMCP("Library Server", port=8001)
 
 
 # ---------------------------------------------------------------------------
@@ -287,4 +287,4 @@ def recommend_books(genre: str, mood: Optional[str] = None) -> str:
 
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(transport="streamable-http")

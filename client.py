@@ -28,14 +28,14 @@ from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
 from agents import Agent, Runner, set_tracing_disabled
-from agents.mcp import MCPServerStdio
+from agents.mcp import MCPServerStreamableHttp
 from agents.models.openai_chatcompletions import OpenAIChatCompletionsModel
 
 load_dotenv()
 
 # A free, tool-calling-capable OpenRouter model. Check openrouter.ai/models
 # (filtered to price = $0) if this ID has rotated out by the time you run this.
-MODEL_NAME = "openrouter/free"
+MODEL_NAME = "openai/gpt-oss-20b:free"
 
 
 def build_openrouter_model() -> OpenAIChatCompletionsModel:
@@ -64,24 +64,25 @@ async def main() -> None:
     set_tracing_disabled(True)  # tracing would otherwise try to phone home to platform.openai.com using a real OPENAI_API_KEY we don't have
     model = build_openrouter_model()
 
-    async with MCPServerStdio(
+    async with MCPServerStreamableHttp(
         name="Library Server",
-        params={
-            "command": "python",
-            "args": ["app.py"],
-        },
+        params={"url": "http://localhost:8001/mcp"},
     ) as library_server:
 
         agent = Agent(
             name="Librarian",
             model=model,
             instructions=(
-                "You are a helpful library assistant. Use the available "
-                "tools to search the catalog, check availability, and "
-                "borrow or return books on behalf of members. Always "
-                "check availability before borrowing if you're not already "
-                "sure a copy is free, and report tool errors back to the "
-                "user in plain language instead of retrying blindly."
+               "You are a helpful library assistant. Use the available "
+               "tools to search the catalog, check availability, and "
+               "borrow or return books on behalf of members. Always "
+               "check availability before borrowing if you're not already "
+               "sure a copy is free, and report tool errors back to the "
+               "user in plain language instead of retrying blindly. "
+               "This is a non-interactive session, so if the user's request "
+               "is ambiguous (e.g. which specific book to borrow), make a "
+               "reasonable choice yourself using an available copy rather "
+               "than asking a follow-up question."
             ),
             mcp_servers=[library_server],
         )
