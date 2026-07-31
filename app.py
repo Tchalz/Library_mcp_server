@@ -21,12 +21,19 @@ Run it under the MCP Inspector (interactive browser UI):
 """
 
 import json
+import os
 from pathlib import Path
 from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("Library Server", port=8001)
+# Hosts like Render/Railway assign the port dynamically via the PORT env
+# var and require binding to 0.0.0.0 (not localhost/127.0.0.1) so the
+# service is reachable from outside the container. Falls back to
+# 0.0.0.0:8001 for local dev, which still works fine at
+# http://localhost:8001/mcp.
+PORT = int(os.environ.get("PORT", 8001))
+mcp = FastMCP("Library Server", host="0.0.0.0", port=PORT)
 
 
 # ---------------------------------------------------------------------------

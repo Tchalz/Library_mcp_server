@@ -15,9 +15,10 @@ overridden below before any Agent is created.
 Requires:
   - An API_TOKEN in the environment (or a .env file, since python-dotenv
     is loaded below) — get one at https://openrouter.ai/keys.
-  - The MCP server (app.py) already running and listening on
-    http://localhost:8001/mcp — start it in a separate terminal with
-    `python app.py` before launching this app.
+  - An MCP_SERVER_URL pointing at a running instance of the MCP server
+    (app.py), e.g. https://your-service.onrender.com/mcp when deployed,
+    or http://localhost:8001/mcp for local dev (the default if unset —
+    start it locally in a separate terminal with `python app.py`).
 
 Run:
     streamlit run client.py
@@ -71,9 +72,11 @@ async def run_librarian(user_request: str):
     """Spins up a fresh MCP connection + agent, runs one turn, returns the result."""
     model = build_openrouter_model()
 
+    mcp_url = os.getenv("MCP_SERVER_URL", "http://localhost:8001/mcp")
+
     async with MCPServerStreamableHttp(
         name="Library Server",
-        params={"url": "http://localhost:8001/mcp"},
+        params={"url": mcp_url},
     ) as library_server:
 
         agent = Agent(
